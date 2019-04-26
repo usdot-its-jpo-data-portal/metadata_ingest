@@ -45,7 +45,7 @@ class PDFQuestionnaire(object):
         return parsed_fields
 
 
-class ITSMetadataQuestionnaire(PDFQuestionnaireParser):
+class ITSMetadataQuestionnaire(PDFQuestionnaire):
     """
     Parser for ITS DataHub Metadata Questionnaire that takes in a filepath to a
     fillable Metadata Questionnaire PDF and return one dictionary object containing
