@@ -112,6 +112,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
 if __name__ == '__main__':
     """
     Quick test: python form_parsers.py
+    
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
     fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v1.pdf')
