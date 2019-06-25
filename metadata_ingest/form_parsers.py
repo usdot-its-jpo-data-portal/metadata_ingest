@@ -1,4 +1,5 @@
 import copy
+from itertools import groupby
 import os
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from PyPDF2.generic import TextStringObject, ByteStringObject
@@ -65,14 +66,35 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
+    def preparse_contactPoints(self, fields):
+        key = lambda x: x[0]
+        contactPointFields = set([k for k in fields if 'contactPoint' in k])
+        roleFieldValTuples = [(*k.split('__')[1:], v['/V']) for k, v in fields.items() if k in contactPointFields]
+        contactFieldGroups = groupby(sorted(roleFieldValTuples, key=key), key=key)
+        contactPoint = [{'hasRole':k,
+                        **{f:v for r,f,v in list(g)}}
+                         for k,g in contactFieldGroups]
+        for k in contactPointFields:
+            del fields[k]
+        return fields, contactPoint
+
+    def parse_identifiersExtended(self, identifiersExtended):
+        identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
+                                 for entry in identifiersExtended.split(',')]
+        for idx, entry in enumerate(identifiersExtended):
+            identifiersExtended[idx]['type'] = identifiersExtended[idx]['type'].lower().strip()
+            identifiersExtended[idx]['uid'] = identifiersExtended[idx]['uid'].lower().strip()
+        return identifiersExtended
+
     def parse_fields(self, fields):
-        parsed_fields = super().parse_fields(fields)
+        fieldsMod, contactPoint = self.preparse_contactPoints(fields)
+        parsed_fields = super().parse_fields(fieldsMod)
         distr = parsed_fields['distribution']
         parsed_fields['distribution'] = [distr]
         parsed_fields['bureauCode'] = ",".join(self.clean_comma_delim(parsed_fields['bureauCode']))
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
-        parsed_fields['trtTerms'] = self.clean_comma_delim(parsed_fields['trtTerms'])
+        parsed_fields['identifiersExtended'] = self.parse_identifiersExtended(parsed_fields['identifiersExtended'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
@@ -112,10 +134,10 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
 if __name__ == '__main__':
     """
     Quick test: python form_parsers.py
-    
+
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v1.pdf')
+    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v2_sample.pdf')
 
     print('Parsing {}'.format(fp))
     mq = ITSMetadataQuestionnaire(fp)
