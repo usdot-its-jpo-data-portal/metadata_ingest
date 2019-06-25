@@ -1,5 +1,6 @@
 import copy
 from itertools import groupby
+import json
 import os
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from PyPDF2.generic import TextStringObject, ByteStringObject
@@ -143,4 +144,7 @@ if __name__ == '__main__':
     mq = ITSMetadataQuestionnaire(fp)
 
     print('Content:')
-    print(mq.content)
+    print(json.dumps(mq.content,
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': ')))
