@@ -112,7 +112,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         commonCore = {
             'Contact Email': contactPoint_dataSteward['hasEmail'],
             'Contact Name': contactPoint_dataSteward['fn'],
-            'Language': q['language'],
+            'Language': 'English',
             'Update Frequency': q['accrualPeriodicity'],
             'License': 'Other',
             'Program Code': q['programCode'],
@@ -135,6 +135,12 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         }
         return metadataUpsert
 
+def prettyprint(jobj):
+    print(json.dumps(jobj,
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': ')))
+
 if __name__ == '__main__':
     """
     Quick test: python form_parsers.py
@@ -146,8 +152,7 @@ if __name__ == '__main__':
     print('Parsing {}'.format(fp))
     mq = ITSMetadataQuestionnaire(fp)
 
-    print('Content:')
-    print(json.dumps(mq.content,
-            sort_keys=True,
-            indent=4,
-            separators=(',', ': ')))
+    print('===== Content ====')
+    prettyprint(mq.content)
+    print('===== DTG metadataUpsert ====')
+    prettyprint(mq.generate_dtg_metadata())
