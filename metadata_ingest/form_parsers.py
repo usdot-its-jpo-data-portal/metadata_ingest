@@ -67,19 +67,23 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
-    def preparse_contactPoints(self, fields):
-        key = lambda x: x[0]
-        contactPointFields = set([k for k in fields if 'contactPoint' in k])
-        roleFieldValTuples = [(*k.split('__')[1:], v['/V']) for k, v in fields.items() if k in contactPointFields]
-        contactFieldGroups = groupby(sorted(roleFieldValTuples, key=key), key=key)
-        contactPoint = [{'hasRole':k,
-                        **{f:v for r,f,v in list(g)}}
-                         for k,g in contactFieldGroups]
-        for k in contactPointFields:
-            del fields[k]
-        return fields, contactPoint
+    def parse_contactPoints(self, contactPoint):
+        contactPoint_array = []
+        for k,v in contactPoint.items():
+            pocs = v.split(',')
+            for poc in pocs:
+                poc = [i.strip() for i in poc.split(':')]
+                poc_dict = {
+                    'fn': poc[0],
+                    'hasEmail': poc[1],
+                    'hasRole': k
+                }
+            contactPoint_array.append(poc_dict)
+        return contactPoint_array
 
     def parse_identifiersExtended(self, identifiersExtended):
+        if not identifiersExtended:
+            return identifiersExtended
         identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
                                  for entry in identifiersExtended.split(',')]
         for idx, entry in enumerate(identifiersExtended):
@@ -88,15 +92,14 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         return identifiersExtended
 
     def parse_fields(self, fields):
-        fieldsMod, contactPoint = self.preparse_contactPoints(fields)
-        parsed_fields = super().parse_fields(fieldsMod)
+        parsed_fields = super().parse_fields(fields)
         distr = parsed_fields['distribution']
         parsed_fields['distribution'] = [distr]
         parsed_fields['bureauCode'] = ",".join(self.clean_comma_delim(parsed_fields['bureauCode']))
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
         parsed_fields['identifiersExtended'] = self.parse_identifiersExtended(parsed_fields['identifiersExtended'])
-        parsed_fields['contactPoint'] = contactPoint
+        parsed_fields['contactPoint'] = self.parse_contactPoints(parsed_fields['contactPoint'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
