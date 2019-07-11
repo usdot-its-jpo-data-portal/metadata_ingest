@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v2_sample.pdf')
+    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf')
 
     print('Parsing {}'.format(fp))
     mq = ITSMetadataQuestionnaire(fp)
