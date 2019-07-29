@@ -1,4 +1,6 @@
 import copy
+from itertools import groupby
+import json
 import os
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from PyPDF2.generic import TextStringObject, ByteStringObject
@@ -65,6 +67,30 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
+    def parse_contactPoints(self, contactPoint):
+        contactPoint_array = []
+        for k,v in contactPoint.items():
+            pocs = v.split(',')
+            for poc in pocs:
+                poc = [i.strip() for i in poc.split(':')]
+                poc_dict = {
+                    'fn': poc[0],
+                    'hasEmail': poc[1],
+                    'hasRole': k
+                }
+            contactPoint_array.append(poc_dict)
+        return contactPoint_array
+
+    def parse_identifiersExtended(self, identifiersExtended):
+        if not identifiersExtended:
+            return identifiersExtended
+        identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
+                                 for entry in identifiersExtended.split(',')]
+        for idx, entry in enumerate(identifiersExtended):
+            identifiersExtended[idx]['type'] = identifiersExtended[idx]['type'].lower().strip()
+            identifiersExtended[idx]['uid'] = identifiersExtended[idx]['uid'].lower().strip()
+        return identifiersExtended
+
     def parse_fields(self, fields):
         parsed_fields = super().parse_fields(fields)
         distr = parsed_fields['distribution']
@@ -72,7 +98,8 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         parsed_fields['bureauCode'] = ",".join(self.clean_comma_delim(parsed_fields['bureauCode']))
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
-        parsed_fields['trtTerms'] = self.clean_comma_delim(parsed_fields['trtTerms'])
+        parsed_fields['identifiersExtended'] = self.parse_identifiersExtended(parsed_fields['identifiersExtended'])
+        parsed_fields['contactPoint'] = self.parse_contactPoints(parsed_fields['contactPoint'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
@@ -83,10 +110,12 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
+        contactPoint_dataSteward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
+
         commonCore = {
-            'Contact Email': q['contactPoint']['hasEmail'],
-            'Contact Name': q['contactPoint']['fn'],
-            'Language': q['language'],
+            'Contact Email': contactPoint_dataSteward['hasEmail'],
+            'Contact Name': contactPoint_dataSteward['fn'],
+            'Language': 'English',
             'Update Frequency': q['accrualPeriodicity'],
             'License': 'Other',
             'Program Code': q['programCode'],
@@ -109,16 +138,24 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         }
         return metadataUpsert
 
+def prettyprint(jobj):
+    print(json.dumps(jobj,
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': ')))
+
 if __name__ == '__main__':
     """
     Quick test: python form_parsers.py
-    
+
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v1.pdf')
+    fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf')
 
     print('Parsing {}'.format(fp))
     mq = ITSMetadataQuestionnaire(fp)
 
-    print('Content:')
-    print(mq.content)
+    print('===== Content ====')
+    prettyprint(mq.content)
+    print('===== DTG metadataUpsert ====')
+    prettyprint(mq.generate_dtg_metadata())
