@@ -4,9 +4,8 @@ import requests
 from socrata.authorization import Authorization
 from socrata import Socrata
 
-import const
-from form_parsers import ITSMetadataQuestionnaire
-
+from metadata_ingest.form_parsers import ITSMetadataQuestionnaire
+from metadata_ingest import const
 
 auth_param = (
   const.SOCRATA_DOMAIN,
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    pdf_fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_v1_sample.pdf')
+    pdf_fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf')
     # pdf_file_name_test = '/Users/julialien/Desktop/its_deployment_lessons_attachments/ITS_benefits_database_in_ITS_datahub/ITSJPO_MetadataQuestionnaire_fillable_v1_BenefitsTest.pdf'
     dataset = SocrataDataset(uuid=None, mq_fp=pdf_fp)
 

@@ -70,6 +70,8 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def parse_contactPoints(self, contactPoint):
         contactPoint_array = []
         for k,v in contactPoint.items():
+            if ':' not in v:
+                continue
             pocs = v.split(',')
             for poc in pocs:
                 poc = [i.strip() for i in poc.split(':')]
@@ -78,7 +80,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
                     'hasEmail': poc[1],
                     'hasRole': k
                 }
-            contactPoint_array.append(poc_dict)
+                contactPoint_array.append(poc_dict)
         return contactPoint_array
 
     def parse_identifiersExtended(self, identifiersExtended):
