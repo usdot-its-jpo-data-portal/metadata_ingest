@@ -22,7 +22,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Testing
 
-Run `python metadata_ingest/form_parsers.py` to test parsing the sample [metadata questionnaire](metadata_ingest/forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf) included in the `forms` folder of this repository. The parsed information will be shown in the command line interface.
+Run `python metadata_ingest/form_parsers.py` to test parsing the sample [metadata questionnaire](forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf) included in the `forms` folder of this repository. The parsed information will be shown in the command line interface.
 
 Run `python metadata_ingest/socrata_ingestor.py` to test creating a dataset in the Socrata platform of your choice, using the metadata information from the sample Metadata Questionnaire at `forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf`
 
