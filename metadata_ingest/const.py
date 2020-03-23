@@ -18,4 +18,4 @@ SOCRATA_API_KEY = None
 dir_path = os.path.dirname(os.path.realpath(__file__))
 local_const_path = os.path.join(dir_path, 'const_local.py')
 if SOCRATA_USERNAME is None and os.path.exists(local_const_path):
-    from const_local import *
+    from metadata_ingest.const_local import *

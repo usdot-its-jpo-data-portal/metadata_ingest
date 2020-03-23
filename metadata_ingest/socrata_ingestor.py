@@ -4,9 +4,8 @@ import requests
 from socrata.authorization import Authorization
 from socrata import Socrata
 
-import const
-from form_parsers import ITSMetadataQuestionnaire
-
+from metadata_ingest.form_parsers import ITSMetadataQuestionnaire
+from metadata_ingest import const
 
 auth_param = (
   const.SOCRATA_DOMAIN,
