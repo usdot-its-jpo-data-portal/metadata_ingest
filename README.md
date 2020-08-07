@@ -58,7 +58,9 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 This project is licensed under the Apache 2.0 License. - see the [LICENSE](LICENSE) file for details
 
 ## Release History
-* 0.1.0
+* 1.1.0
+  * Added "Section D. Promotion" section for promotion/communication questions to metadata questionnaire.
+* 1.0.0
   * Initial version
 
 ## Known Bugs
