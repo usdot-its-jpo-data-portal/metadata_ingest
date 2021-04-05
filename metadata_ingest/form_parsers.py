@@ -44,7 +44,6 @@ class PDFQuestionnaire(object):
             cleaned_val = self.clean_fields(v.get('/V'))
             if '__' not in k:
                 parsed_fields[k] = cleaned_val
-                continue
             else:
                 p, c = tuple(k.split('__'))
 
@@ -67,9 +66,9 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
-    def parse_contactPoints(self, contactPoint):
-        contactPoint_array = []
-        for k,v in contactPoint.items():
+    def parse_contactPoints(self, contact_point):
+        contact_point_array = []
+        for k,v in contact_point.items():
             if ':' not in v:
                 continue
             pocs = v.split(',')
@@ -80,12 +79,12 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
                     'hasEmail': poc[1],
                     'hasRole': k
                 }
-                contactPoint_array.append(poc_dict)
-        return contactPoint_array
+                contact_point_array.append(poc_dict)
+        return contact_point_array
 
-    def parse_identifiersExtended(self, identifiersExtended):
-        if not identifiersExtended:
-            return identifiersExtended
+    def parse_identifiersExtended(self, identifiers_extended):
+        if not identifiers_extended:
+            return identifiers_extended
         identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
                                  for entry in identifiersExtended.split(',')]
         for idx, entry in enumerate(identifiersExtended):
@@ -112,11 +111,11 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
-        contactPoint_dataSteward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
+        contact_point_dataSteward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
 
-        commonCore = {
-            'Contact Email': contactPoint_dataSteward['hasEmail'],
-            'Contact Name': contactPoint_dataSteward['fn'],
+        common_core = {
+            'Contact Email': contact_point_dataSteward['hasEmail'],
+            'Contact Name': contact_point_dataSteward['fn'],
             'Language': 'English',
             'Update Frequency': q['accrualPeriodicity'],
             'License': 'Other',
@@ -129,16 +128,16 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
             'Public Access Level': q['accessLevel'].lower(),
             'Homepage': q['landingPage']
         }
-        metadataUpsert = {
+        metadata_upsert = {
             'name': q['title'],
             'attribution': default_attribution,
             'description': q['description'],
             'privateMetadata': {'contactEmail': default_contact_email},
             'tags': list(set(q['keyword'] + default_tags)),
-            'customFields': {'Common Core': commonCore},
+            'customFields': {'Common Core': common_core},
             'category': default_category
         }
-        return metadataUpsert
+        return metadata_upsert
 
 def prettyprint(jobj):
     print(json.dumps(jobj,
