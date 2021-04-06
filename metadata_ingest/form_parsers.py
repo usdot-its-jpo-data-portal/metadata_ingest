@@ -66,7 +66,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
-    def parse_contactPoints(self, contact_point):
+    def parse_contact_points(self, contact_point):
         contact_point_array = []
         for k,v in contact_point.items():
             if ':' not in v:
@@ -82,15 +82,15 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
                 contact_point_array.append(poc_dict)
         return contact_point_array
 
-    def parse_identifiersExtended(self, identifiers_extended):
+    def parse_identifiers_extended(self, identifiers_extended):
         if not identifiers_extended:
             return identifiers_extended
-        identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
-                                 for entry in identifiersExtended.split(',')]
-        for idx, entry in enumerate(identifiersExtended):
-            identifiersExtended[idx]['type'] = identifiersExtended[idx]['type'].lower().strip()
-            identifiersExtended[idx]['uid'] = identifiersExtended[idx]['uid'].lower().strip()
-        return identifiersExtended
+        identifiers_extended = [dict(zip(['type', 'uid'], entry.split(':')))
+                                 for entry in identifiers_extended.split(',')]
+        for idx, entry in enumerate(identifiers_extended):
+            identifiers_extended[idx]['type'] = identifiers_extended[idx]['type'].lower().strip()
+            identifiers_extended[idx]['uid'] = identifiers_extended[idx]['uid'].lower().strip()
+        return identifiers_extended
 
     def parse_fields(self, fields):
         parsed_fields = super().parse_fields(fields)
@@ -99,8 +99,8 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         parsed_fields['bureauCode'] = ",".join(self.clean_comma_delim(parsed_fields['bureauCode']))
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
-        parsed_fields['identifiersExtended'] = self.parse_identifiersExtended(parsed_fields['identifiersExtended'])
-        parsed_fields['contactPoint'] = self.parse_contactPoints(parsed_fields['contactPoint'])
+        parsed_fields['identifiersExtended'] = self.parse_identifiers_extended(parsed_fields['identifiersExtended'])
+        parsed_fields['contactPoints'] = self.parse_contact_points(parsed_fields['contactPoints'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
@@ -111,11 +111,11 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
-        contact_point_dataSteward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
+        contact_point_data_steward = [i for i in q['contact_points'] if i['hasRole'] == 'dataSteward'][0]
 
         common_core = {
-            'Contact Email': contact_point_dataSteward['hasEmail'],
-            'Contact Name': contact_point_dataSteward['fn'],
+            'Contact Email': contact_point_data_steward['hasEmail'],
+            'Contact Name': contact_point_data_steward['fn'],
             'Language': 'English',
             'Update Frequency': q['accrualPeriodicity'],
             'License': 'Other',
