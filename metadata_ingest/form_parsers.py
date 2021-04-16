@@ -111,7 +111,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
-        contact_point_data_steward = [i for i in q['contactPoints'] if i['hasRole'] == 'dataSteward'][0]
+        contact_point_data_steward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
 
         common_core = {
             'Contact Email': contact_point_data_steward['hasEmail'],
