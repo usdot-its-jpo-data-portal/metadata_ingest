@@ -100,7 +100,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
         parsed_fields['identifiersExtended'] = self.parse_identifiers_extended(parsed_fields['identifiersExtended'])
-        parsed_fields['contactPoints'] = self.parse_contact_points(parsed_fields['contactPoints'])
+        parsed_fields['contactPoint'] = self.parse_contact_points(parsed_fields['contactPoint'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
@@ -111,7 +111,7 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
-        contact_point_data_steward = [i for i in q['contact_points'] if i['hasRole'] == 'dataSteward'][0]
+        contact_point_data_steward = [i for i in q['contactPoints'] if i['hasRole'] == 'dataSteward'][0]
 
         common_core = {
             'Contact Email': contact_point_data_steward['hasEmail'],
