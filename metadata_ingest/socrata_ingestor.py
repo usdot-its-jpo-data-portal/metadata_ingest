@@ -35,7 +35,6 @@ class SocrataDataset(object):
             url = 'https://{}/api/views/metadata/v1/{}'.format(self.auth_param[0], self.uuid)
             r = requests.get(url, auth=self.auth_param[1:])
             self.metadata = r.json()
-        return
 
     def create_dataset(self):
         if self.uuid is None:
@@ -54,7 +53,6 @@ class SocrataDataset(object):
             print('Dataset has been created at {}'.format(self.generate_dataset_url()))
         else:
             print('Dataset already exists at {}'.format(self.generate_dataset_url()))
-        return
 
     def update_metadata(self):
         if self.uuid:
@@ -75,7 +73,6 @@ if __name__ == '__main__':
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
     pdf_fp = os.path.join(dir_path, '../forms/ITSJPO_MetadataQuestionnaire_fillable_sample.pdf')
-    # pdf_file_name_test = '/Users/julialien/Desktop/its_deployment_lessons_attachments/ITS_benefits_database_in_ITS_datahub/ITSJPO_MetadataQuestionnaire_fillable_v1_BenefitsTest.pdf'
     dataset = SocrataDataset(uuid=None, mq_fp=pdf_fp)
 
     dataset.create_dataset()

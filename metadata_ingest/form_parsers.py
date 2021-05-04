@@ -44,7 +44,6 @@ class PDFQuestionnaire(object):
             cleaned_val = self.clean_fields(v.get('/V'))
             if '__' not in k:
                 parsed_fields[k] = cleaned_val
-                continue
             else:
                 p, c = tuple(k.split('__'))
 
@@ -67,9 +66,9 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
     def __init__(self, fp):
         super().__init__(fp)
 
-    def parse_contactPoints(self, contactPoint):
-        contactPoint_array = []
-        for k,v in contactPoint.items():
+    def parse_contact_points(self, contact_point):
+        contact_point_array = []
+        for k,v in contact_point.items():
             if ':' not in v:
                 continue
             pocs = v.split(',')
@@ -80,18 +79,18 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
                     'hasEmail': poc[1],
                     'hasRole': k
                 }
-                contactPoint_array.append(poc_dict)
-        return contactPoint_array
+                contact_point_array.append(poc_dict)
+        return contact_point_array
 
-    def parse_identifiersExtended(self, identifiersExtended):
-        if not identifiersExtended:
-            return identifiersExtended
-        identifiersExtended = [dict(zip(['type', 'uid'], entry.split(':')))
-                                 for entry in identifiersExtended.split(',')]
-        for idx, entry in enumerate(identifiersExtended):
-            identifiersExtended[idx]['type'] = identifiersExtended[idx]['type'].lower().strip()
-            identifiersExtended[idx]['uid'] = identifiersExtended[idx]['uid'].lower().strip()
-        return identifiersExtended
+    def parse_identifiers_extended(self, identifiers_extended):
+        if not identifiers_extended:
+            return identifiers_extended
+        identifiers_extended = [dict(zip(['type', 'uid'], entry.split(':')))
+                                 for entry in identifiers_extended.split(',')]
+        for idx, entry in enumerate(identifiers_extended):
+            identifiers_extended[idx]['type'] = identifiers_extended[idx]['type'].lower().strip()
+            identifiers_extended[idx]['uid'] = identifiers_extended[idx]['uid'].lower().strip()
+        return identifiers_extended
 
     def parse_fields(self, fields):
         parsed_fields = super().parse_fields(fields)
@@ -100,8 +99,8 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         parsed_fields['bureauCode'] = ",".join(self.clean_comma_delim(parsed_fields['bureauCode']))
         parsed_fields['programCode'] = ",".join(self.clean_comma_delim(parsed_fields['programCode']))
         parsed_fields['keyword'] = self.clean_comma_delim(parsed_fields['keyword'])
-        parsed_fields['identifiersExtended'] = self.parse_identifiersExtended(parsed_fields['identifiersExtended'])
-        parsed_fields['contactPoint'] = self.parse_contactPoints(parsed_fields['contactPoint'])
+        parsed_fields['identifiersExtended'] = self.parse_identifiers_extended(parsed_fields['identifiersExtended'])
+        parsed_fields['contactPoint'] = self.parse_contact_points(parsed_fields['contactPoint'])
         return parsed_fields
 
     def generate_dtg_metadata(self):
@@ -112,11 +111,11 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
         default_category = 'Automobiles'
         default_contact_email = 'RDAE_Support@bah.com'
 
-        contactPoint_dataSteward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
+        contact_point_data_steward = [i for i in q['contactPoint'] if i['hasRole'] == 'dataSteward'][0]
 
-        commonCore = {
-            'Contact Email': contactPoint_dataSteward['hasEmail'],
-            'Contact Name': contactPoint_dataSteward['fn'],
+        common_core = {
+            'Contact Email': contact_point_data_steward['hasEmail'],
+            'Contact Name': contact_point_data_steward['fn'],
             'Language': 'English',
             'Update Frequency': q['accrualPeriodicity'],
             'License': 'Other',
@@ -129,16 +128,16 @@ class ITSMetadataQuestionnaire(PDFQuestionnaire):
             'Public Access Level': q['accessLevel'].lower(),
             'Homepage': q['landingPage']
         }
-        metadataUpsert = {
+        metadata_upsert = {
             'name': q['title'],
             'attribution': default_attribution,
             'description': q['description'],
             'privateMetadata': {'contactEmail': default_contact_email},
             'tags': list(set(q['keyword'] + default_tags)),
-            'customFields': {'Common Core': commonCore},
+            'customFields': {'Common Core': common_core},
             'category': default_category
         }
-        return metadataUpsert
+        return metadata_upsert
 
 def prettyprint(jobj):
     print(json.dumps(jobj,
